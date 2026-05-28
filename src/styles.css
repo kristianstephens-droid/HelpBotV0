@@ -1,3 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------------------------------------------------------------------
+ * Legacy chat styles below. Used by src/components/Chat.jsx (the dark chat UI
+ * built before the wizard). The wizard screens use Tailwind utilities and
+ * the `vt` color palette defined in tailwind.config.js — they do not touch
+ * any of the variables or classes below.
+ * ------------------------------------------------------------------------ */
+
 :root {
   --bg: #0f1115;
   --panel: #171a21;
