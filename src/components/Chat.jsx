@@ -6,9 +6,9 @@ import MessageBubble from "./MessageBubble.jsx";
  *
  * Props (all optional — the chat still works standalone):
  *   - wizardContext: { team, tool, issueId, issueLabel, freeText }
- *       Sent to /api/chat with every request. The backend uses this to
- *       build a system prompt that pre-loads team/tool/issue + matching
- *       SOP so Claude can walk the rep through troubleshooting.
+ *       Sent to /api/chat with every request. The backend appends this as
+ *       a small intake block on the system prompt so Claude knows the
+ *       rep's team / tool / issue without re-asking.
  *   - initialUserMessage: string
  *       If present and the chat is empty, this message is auto-sent as
  *       the first user turn so Claude opens the conversation in context.

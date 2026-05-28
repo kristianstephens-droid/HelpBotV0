@@ -95,7 +95,7 @@ export default async (req, context) => {
   const provider = body?.provider === "openai" ? "openai" : "claude";
   const maxTokens = clampMaxTokens(process.env.MAX_OUTPUT_TOKENS, 1024);
 
-  // --- Build system prompt with wizard context (team / tool / issue + SOP) ---
+  // --- Build system prompt with wizard intake context (team / tool / issue) ---
   const systemPrompt = buildSystemPrompt(body?.context ?? {});
 
   // --- Call the model ---

@@ -13,8 +13,7 @@ import { TEAMS, TOOLS, FLEX_ISSUES } from "../lib/wizardConfig.js";
  * Owns all wizard state and decides which step is on screen. When the user
  * reaches the `chat` step, we render the existing <Chat /> component with
  * the gathered context (team / tool / issue / freeText) so the backend can
- * inject it into Claude's system prompt and Claude can walk the rep through
- * the matching SOP.
+ * inject it into Claude's system prompt.
  *
  * Adding a new step:
  *   1. Create a *.jsx file under ./steps/

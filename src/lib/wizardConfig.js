@@ -21,8 +21,8 @@ export const TOOLS = [
 
 /**
  * Common Twilio Flex issues. The first three lead straight to chat with the
- * issue pre-loaded as context for Claude (which then walks the rep through
- * the matching SOP). "other" leads to a free-text screen first.
+ * issue pre-loaded as context for Claude. "other" leads to a free-text
+ * screen first.
  *
  * `kind: "common"` => SELECT_ISSUE
  * `kind: "other"`  => GO_TO_FREE_TEXT

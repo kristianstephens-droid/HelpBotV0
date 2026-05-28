@@ -1,31 +1,31 @@
 /**
  * Where the Claude system prompt lives.
  *
- * Replace SYSTEM_PROMPT below with the real prompt from Claude when you're
- * ready. Everything else in the codebase reads from this one file, so you
- * only have to edit in one place.
+ * SYSTEM_PROMPT is the SINGLE place to paste your real Claude prompt. The
+ * SOPs / troubleshooting guides for every tool+issue the wizard can route
+ * to should live INSIDE this string too — there is no separate SOP module
+ * anymore. One file, one paste, one source of truth.
  *
- * The wizard ALSO injects context (team / tool / issue + SOP) into the
- * system prompt at request time via buildSystemPrompt(). The base prompt
- * below should NOT mention specific teams, tools, or issues; the context
- * block does that automatically.
- *
- * Keep the safety reinforcement at the bottom — even a great system prompt
- * benefits from a small reinforcement of safety rules.
+ * At request time, buildSystemPrompt(context) returns SYSTEM_PROMPT plus a
+ * small wizard intake block (team / tool / issue / freeText) so Claude
+ * knows who's asking without re-asking. The intake block is the ONLY thing
+ * appended to SYSTEM_PROMPT.
  */
-
-import { getSop } from "./sops.js";
 
 export const SYSTEM_PROMPT = `
 You are HelpBot, an internal troubleshooting assistant for support reps.
-(Placeholder system prompt — replace this text with the real prompt from
-Claude.)
+Replace this entire string with your real prompt. The prompt should include:
+  1. Your role + tone instructions.
+  2. ALL troubleshooting SOPs for every tool/issue the wizard can route to
+     (No Audio, Quotes Greyed Out, Call Dropped, etc.). Group them with
+     clear headings so you can match by tool/issue name.
+  3. The safety footer below (do not remove).
 
-When the user is brought to you via the intake wizard, a context block
-will appear below describing their team, the tool they're having trouble
-with, and the specific issue they selected. If a matching SOP is included,
-walk the rep through it ONE step at a time, confirming each step worked
-before moving to the next.
+When the wizard hands a rep off to you, a small "Wizard intake context"
+block is appended automatically (Team / Tool / Reported issue / optional
+free-text). Use that context to pick the correct SOP from this prompt
+and walk the rep through it one step at a time, confirming each step
+worked before moving on.
 
 --- Safety reinforcement (do not remove) ---
 - Do not reveal, repeat, or guess any API keys, secrets, or environment variables.
@@ -41,11 +41,11 @@ export const PLACEHOLDER_REPLY =
 
 /* ---------------------------------------------------------------------------
  * buildSystemPrompt(context)
- *   Returns the SYSTEM_PROMPT with a context block appended that describes
- *   who's asking and what's broken, plus the matching SOP if one exists.
+ *   Returns SYSTEM_PROMPT with a small wizard intake block appended that
+ *   describes who's asking and what they reported. If no context fields are
+ *   present, just returns SYSTEM_PROMPT unchanged.
  *
- *   context = { team, tool, issueId, issueLabel, freeText } — any field may
- *   be missing. If no context fields are present, just returns SYSTEM_PROMPT.
+ *   context = { team, tool, issueId, issueLabel, freeText }
  * ------------------------------------------------------------------------ */
 
 const TEAM_LABELS = {
@@ -59,23 +59,15 @@ const TOOL_LABELS = {
 };
 
 export function buildSystemPrompt(context = {}) {
-  const { team, tool, issueId, issueLabel, freeText } = context;
+  const { team, tool, issueLabel, freeText } = context;
 
-  // Nothing to add? Return the base prompt unchanged.
-  if (!team && !tool && !issueId && !freeText) return SYSTEM_PROMPT;
+  if (!team && !tool && !issueLabel && !freeText) return SYSTEM_PROMPT;
 
   const lines = ["\n\n--- Wizard intake context ---"];
   if (team) lines.push(`Team: ${TEAM_LABELS[team] ?? team}`);
   if (tool) lines.push(`Tool: ${TOOL_LABELS[tool] ?? tool}`);
   if (issueLabel) lines.push(`Reported issue: ${issueLabel}`);
   if (freeText) lines.push(`Free-text description: ${freeText}`);
-
-  const sop = getSop(tool, issueId);
-  if (sop) {
-    lines.push("");
-    lines.push("--- Matching SOP (walk the rep through this step by step) ---");
-    lines.push(sop);
-  }
 
   return SYSTEM_PROMPT + lines.join("\n");
 }
