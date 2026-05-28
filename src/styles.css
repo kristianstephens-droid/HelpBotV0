@@ -164,6 +164,28 @@ body {
   font-size: 14px;
 }
 
+.chat-context {
+  background: var(--panel-2);
+  color: var(--muted);
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.chat-context-label {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.chat-typing {
+  align-self: flex-start;
+  color: var(--muted);
+  font-size: 13px;
+  font-style: italic;
+  padding: 4px 8px;
+}
+
 /* Bubbles */
 .bubble {
   max-width: 80%;

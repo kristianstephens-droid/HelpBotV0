@@ -1,11 +1,11 @@
 /**
  * The pill-shaped option button used on every wizard step.
  *   - White background, soft navy/blue border
- *   - Leading icon (image), label, trailing chevron
+ *   - Optional leading icon (image), label, trailing chevron
  *   - Hover: subtle blue tint background
  *
  * Props:
- *   - icon:  imported PNG/SVG source URL
+ *   - icon:  (optional) imported PNG/SVG source URL
  *   - label: button text
  *   - onClick: callback
  */
@@ -26,13 +26,15 @@ export default function ChoiceButton({ icon, label, onClick }) {
       "
     >
       <span className="flex items-center gap-3 text-lg">
-        <img
-          src={icon}
-          alt=""
-          aria-hidden="true"
-          className="h-8 w-8 shrink-0 select-none"
-          draggable={false}
-        />
+        {icon ? (
+          <img
+            src={icon}
+            alt=""
+            aria-hidden="true"
+            className="h-8 w-8 shrink-0 select-none"
+            draggable={false}
+          />
+        ) : null}
         <span className="font-medium">{label}</span>
       </span>
 

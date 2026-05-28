@@ -18,3 +18,18 @@ export const TOOLS = [
   { id: "nerdyassistant", label: "NerdyAssistant", icon: nerdyAssistant },
   { id: "flex", label: "Twilio Flex", icon: twilioFlex },
 ];
+
+/**
+ * Common Twilio Flex issues. The first three lead straight to chat with the
+ * issue pre-loaded as context for Claude (which then walks the rep through
+ * the matching SOP). "other" leads to a free-text screen first.
+ *
+ * `kind: "common"` => SELECT_ISSUE
+ * `kind: "other"`  => GO_TO_FREE_TEXT
+ */
+export const FLEX_ISSUES = [
+  { id: "no_audio", label: "No Audio", kind: "common" },
+  { id: "quotes_greyed_out", label: "Quotes are Greyed Out", kind: "common" },
+  { id: "call_dropped", label: "Call Dropped", kind: "common" },
+  { id: "other", label: "Not Sure / Other", kind: "other" },
+];

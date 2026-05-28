@@ -5,7 +5,14 @@
  *   {
  *     messages: [{ role: "user"|"assistant", content: string }, ...],
  *     conversationId?: string,
- *     provider?: "claude" | "openai"   // optional, defaults to "claude"
+ *     provider?: "claude" | "openai",   // optional, defaults to "claude"
+ *     context?: {                        // optional; sent by the wizard
+ *       team?: string,                   //   "new_sales" | "member_services"
+ *       tool?: string,                   //   "flex" | "nerdyassistant"
+ *       issueId?: string,                //   e.g. "no_audio"
+ *       issueLabel?: string,             //   e.g. "No Audio"
+ *       freeText?: string                //   from the Other path
+ *     }
  *   }
  *
  * Response body:
@@ -25,7 +32,7 @@ import { checkRateLimit } from "./_shared/rateLimit.js";
 import { saveTurn, logSafetyEvent } from "./_shared/supabaseAdmin.js";
 import { callClaude, isClaudeConfigured } from "./_shared/claude.js";
 import { callOpenAI } from "./_shared/openai.js";
-import { SYSTEM_PROMPT, PLACEHOLDER_REPLY } from "./_shared/prompts.js";
+import { buildSystemPrompt, PLACEHOLDER_REPLY } from "./_shared/prompts.js";
 
 function json(status, body) {
   return new Response(JSON.stringify(body), {
@@ -88,6 +95,9 @@ export default async (req, context) => {
   const provider = body?.provider === "openai" ? "openai" : "claude";
   const maxTokens = clampMaxTokens(process.env.MAX_OUTPUT_TOKENS, 1024);
 
+  // --- Build system prompt with wizard context (team / tool / issue + SOP) ---
+  const systemPrompt = buildSystemPrompt(body?.context ?? {});
+
   // --- Call the model ---
   let result;
   try {
@@ -101,14 +111,14 @@ export default async (req, context) => {
         };
       } else {
         result = await callClaude({
-          systemPrompt: SYSTEM_PROMPT,
+          systemPrompt,
           messages: cleanMessages,
           maxTokens,
         });
       }
     } else {
       result = await callOpenAI({
-        systemPrompt: SYSTEM_PROMPT,
+        systemPrompt,
         messages: cleanMessages,
         maxTokens,
       });

@@ -1,23 +1,35 @@
-import { useCallback, useEffect, useReducer } from "react";
+import { useCallback, useEffect, useMemo, useReducer } from "react";
 import BrandHeader from "./BrandHeader.jsx";
+import Chat from "./Chat.jsx";
 import TeamStep from "./steps/TeamStep.jsx";
 import ToolStep from "./steps/ToolStep.jsx";
+import FlexIssueStep from "./steps/FlexIssueStep.jsx";
+import FreeTextStep from "./steps/FreeTextStep.jsx";
+import { TEAMS, TOOLS, FLEX_ISSUES } from "../lib/wizardConfig.js";
 
 /**
  * Wizard container.
  *
- * Owns all wizard state and decides which step is on screen. Each step is a
- * dumb child that just calls `onSelect(value)`. Adding a new step is:
+ * Owns all wizard state and decides which step is on screen. When the user
+ * reaches the `chat` step, we render the existing <Chat /> component with
+ * the gathered context (team / tool / issue / freeText) so the backend can
+ * inject it into Claude's system prompt and Claude can walk the rep through
+ * the matching SOP.
+ *
+ * Adding a new step:
  *   1. Create a *.jsx file under ./steps/
  *   2. Add a `case` to the reducer for the choice that leads INTO it.
- *   3. Add a `case` to the renderer below.
+ *   3. Add a `case` to renderStep() below.
+ *   4. Add it to STEP_ORDER so the Back button works.
  *
  * State shape:
  *   {
- *     step: "team" | "tool" | "flexIssue" | "nerdyAssistant" | "chat",
+ *     step: "team" | "tool" | "flexIssue" | "freeText" | "nerdyAssistant" | "chat",
  *     team: "new_sales" | "member_services" | null,
  *     tool: "nerdyassistant" | "flex" | null,
- *     issue: string | null,
+ *     issueId: string | null,
+ *     issueLabel: string | null,
+ *     freeText: string | null,
  *   }
  */
 
@@ -27,10 +39,19 @@ const initialState = {
   step: "team",
   team: null,
   tool: null,
-  issue: null,
+  issueId: null,
+  issueLabel: null,
+  freeText: null,
 };
 
-const STEP_ORDER = ["team", "tool", "flexIssue", "nerdyAssistant", "chat"];
+const STEP_ORDER = [
+  "team",
+  "tool",
+  "flexIssue",
+  "nerdyAssistant",
+  "freeText",
+  "chat",
+];
 
 function reducer(state, action) {
   switch (action.type) {
@@ -38,10 +59,6 @@ function reducer(state, action) {
       return { ...state, team: action.value, step: "tool" };
 
     case "SELECT_TOOL":
-      // Branch based on which tool the user picked.
-      // The follow-up screens (flexIssue / nerdyAssistant) are not built yet —
-      // selecting a tool sets the step but those screens will render a TODO
-      // placeholder until you provide their designs.
       if (action.value === "flex") {
         return { ...state, tool: "flex", step: "flexIssue" };
       }
@@ -50,17 +67,38 @@ function reducer(state, action) {
       }
       return state;
 
-    case "SELECT_ISSUE":
-      return { ...state, issue: action.value, step: "chat" };
+    case "SELECT_ISSUE": {
+      // action.value is a FLEX_ISSUES item: { id, label, kind }
+      const { id, label, kind } = action.value;
+      if (kind === "other") {
+        return { ...state, issueId: id, issueLabel: label, step: "freeText" };
+      }
+      return { ...state, issueId: id, issueLabel: label, step: "chat" };
+    }
+
+    case "SUBMIT_FREE_TEXT":
+      return { ...state, freeText: action.value, step: "chat" };
 
     case "BACK": {
       const idx = STEP_ORDER.indexOf(state.step);
       if (idx <= 0) return state;
+      // Special-case: from chat or freeText, back goes to flexIssue (the
+      // most recent choice screen on the Flex path).
+      if (state.step === "chat" || state.step === "freeText") {
+        const back = state.tool === "flex" ? "flexIssue" : "tool";
+        const cleared = { ...state, step: back };
+        cleared.issueId = null;
+        cleared.issueLabel = null;
+        cleared.freeText = null;
+        return cleared;
+      }
       const prev = STEP_ORDER[idx - 1];
-      // Clear the value gathered at the step we are leaving.
       const cleared = { ...state, step: prev };
       if (state.step === "tool") cleared.tool = null;
-      if (state.step === "flexIssue" || state.step === "nerdyAssistant") cleared.issue = null;
+      if (state.step === "flexIssue" || state.step === "nerdyAssistant") {
+        cleared.issueId = null;
+        cleared.issueLabel = null;
+      }
       return cleared;
     }
 
@@ -107,7 +145,6 @@ export default function Wizard() {
     <div className="min-h-screen bg-white text-vt-ink font-sans">
       <BrandHeader />
 
-      {/* Back / reset row — hidden on the first step */}
       {state.step !== "team" && (
         <div className="mx-auto w-full max-w-xl px-6 mt-2 flex items-center justify-between text-sm">
           <button
@@ -149,17 +186,83 @@ function renderStep(state, dispatch) {
       );
 
     case "flexIssue":
-      return <PendingScreen title="Flex common issues — coming next" state={state} />;
+      return (
+        <FlexIssueStep
+          onSelect={(value) => dispatch({ type: "SELECT_ISSUE", value })}
+        />
+      );
+
+    case "freeText":
+      return (
+        <FreeTextStep
+          onSubmit={(value) => dispatch({ type: "SUBMIT_FREE_TEXT", value })}
+        />
+      );
 
     case "nerdyAssistant":
       return <PendingScreen title="NerdyAssistant next step — coming next" state={state} />;
 
     case "chat":
-      return <PendingScreen title="Chat hand-off — coming next" state={state} />;
+      return <ChatHandoff state={state} />;
 
     default:
       return null;
   }
+}
+
+/**
+ * Renders the existing <Chat /> with the wizard context attached.
+ * The first user message is auto-sent so Claude opens the conversation
+ * already knowing what's going on.
+ */
+function ChatHandoff({ state }) {
+  const { context, initialMessage, stripLabel } = useMemo(
+    () => deriveChatHandoff(state),
+    [state],
+  );
+
+  return (
+    <div className="mx-auto w-full max-w-xl px-6 pt-6 pb-10">
+      <Chat
+        wizardContext={context}
+        initialUserMessage={initialMessage}
+        contextStripLabel={stripLabel}
+      />
+    </div>
+  );
+}
+
+function deriveChatHandoff(state) {
+  const teamLabel = TEAMS.find((t) => t.id === state.team)?.label ?? state.team;
+  const toolLabel = TOOLS.find((t) => t.id === state.tool)?.label ?? state.tool;
+  const issueLabel =
+    state.issueLabel ??
+    FLEX_ISSUES.find((i) => i.id === state.issueId)?.label ??
+    null;
+
+  // What we send to the backend (the source of truth for the system prompt).
+  const context = {
+    team: state.team ?? undefined,
+    tool: state.tool ?? undefined,
+    issueId: state.issueId ?? undefined,
+    issueLabel: issueLabel ?? undefined,
+    freeText: state.freeText ?? undefined,
+  };
+
+  // The first user message that auto-sends.
+  let initialMessage = null;
+  if (state.freeText) {
+    initialMessage = state.freeText;
+  } else if (issueLabel && toolLabel) {
+    initialMessage = `I'm having an issue with ${toolLabel}: ${issueLabel}. Can you walk me through it?`;
+  }
+
+  // Small badge above the chat so the rep knows what the bot already knows.
+  const parts = [teamLabel, toolLabel, issueLabel || (state.freeText ? "Other" : null)]
+    .filter(Boolean);
+  const stripLabel = parts.length > 0 ? parts.join(" \u00b7 ") : null;
+
+  return { context, initialMessage, stripLabel };
 }
 
 function PendingScreen({ title, state }) {
