@@ -22,17 +22,13 @@
   --radius: 12px;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg: #f7f8fb;
-    --panel: #ffffff;
-    --panel-2: #f0f2f7;
-    --text: #1a1d24;
-    --muted: #5b6478;
-    --user-bubble: #2563eb;
-    --assistant-bubble: #e5e9f2;
-  }
-}
+/*
+ * Note: no prefers-color-scheme switch. The chat is locked to its dark
+ * "card" look so it stays readable inside the wizard's white container
+ * regardless of the user's OS theme. (Previously, on a dark-mode Mac the
+ * assistant bubble was dark gray AND the text inherited dark navy from the
+ * wizard wrapper — making it unreadable. Lock both ends.)
+ */
 
 * {
   box-sizing: border-box;
@@ -46,8 +42,6 @@ body,
 }
 
 body {
-  background: var(--bg);
-  color: var(--text);
   font-family:
     system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
     sans-serif;
@@ -93,6 +87,7 @@ body {
 /* Chat */
 .chat {
   background: var(--panel);
+  color: var(--text);
   border-radius: var(--radius);
   padding: 16px;
   display: flex;
@@ -205,6 +200,7 @@ body {
 .bubble.assistant {
   align-self: flex-start;
   background: var(--assistant-bubble);
+  color: var(--text);
   border-bottom-left-radius: 4px;
 }
 

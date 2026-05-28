@@ -253,7 +253,7 @@ function deriveChatHandoff(state) {
   if (state.freeText) {
     initialMessage = state.freeText;
   } else if (issueLabel && toolLabel) {
-    initialMessage = `I'm having an issue with ${toolLabel}: ${issueLabel}. Can you walk me through it?`;
+    initialMessage = `I'm having an issue with ${toolLabel}: ${issueLabel}. Walk me through it ONE step at a time — give me Step 1 only, then wait for my reply before sending Step 2.`;
   }
 
   // Small badge above the chat so the rep knows what the bot already knows.
