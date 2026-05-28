@@ -4,7 +4,9 @@ A safe, minimal agent help-bot skeleton.
 
 - **Frontend:** Vite + React, hosted on Netlify.
 - **Backend:** Netlify Functions (the only place that holds secret keys).
-- **Database:** Supabase (Postgres + Row Level Security).
+- **Database:** Supabase (Postgres + Row Level Security). All HelpBot
+  tables are prefixed with `helpbot_` so they don't collide with anything
+  else in your existing project.
 - **AI:** Anthropic Claude today; OpenAI wired in (stubbed) for later.
 
 ## Two golden rules

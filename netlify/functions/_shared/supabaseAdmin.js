@@ -44,7 +44,7 @@ export async function saveTurn({
   let convoId = conversationId;
   if (!convoId) {
     const { data, error } = await supabase
-      .from("conversations")
+      .from("helpbot_conversations")
       .insert({ title: userContent.slice(0, 60) })
       .select("id")
       .single();
@@ -56,7 +56,7 @@ export async function saveTurn({
     convoId = data.id;
   }
 
-  const { error: msgErr } = await supabase.from("messages").insert([
+  const { error: msgErr } = await supabase.from("helpbot_messages").insert([
     {
       conversation_id: convoId,
       role: "user",
@@ -88,7 +88,7 @@ export async function saveTurn({
 export async function logSafetyEvent({ conversationId = null, type, details = {} }) {
   const supabase = getSupabaseAdmin();
   if (!supabase) return;
-  const { error } = await supabase.from("safety_events").insert({
+  const { error } = await supabase.from("helpbot_safety_events").insert({
     conversation_id: conversationId,
     type,
     details,

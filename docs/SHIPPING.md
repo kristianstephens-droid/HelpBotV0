@@ -32,7 +32,8 @@ Run through every box before any merge into `main` or click of
 - [ ] `supabase/schema.sql` applied to the **production** Supabase project.
 - [ ] Click **Publish deploy** in Netlify (auto-publish stays off).
 - [ ] Smoke test the live URL: send one message, confirm reply + that
-      a row appeared in `messages` and (if applicable) `safety_events`.
+      a row appeared in `helpbot_messages` and (if applicable)
+      `helpbot_safety_events`.
 
 ## If something looks off after deploy
 

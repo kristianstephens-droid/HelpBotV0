@@ -1,5 +1,5 @@
 /**
- * Simple per-IP rate limiter backed by the `rate_limits` table in Supabase.
+ * Simple per-IP rate limiter backed by the `helpbot_rate_limits` table in Supabase.
  *
  * Algorithm: fixed window. For a given key (e.g. an IP), we look up the
  * current window row, increment if it's still in the window, otherwise
@@ -42,7 +42,7 @@ export async function checkRateLimit(key) {
 
   // Try to read the current window row.
   const { data: existing, error: readErr } = await supabase
-    .from("rate_limits")
+    .from("helpbot_rate_limits")
     .select("count, window_start")
     .eq("key", key)
     .maybeSingle();
@@ -61,14 +61,14 @@ export async function checkRateLimit(key) {
       return { allowed: false, remaining: 0, retryAfter };
     }
     await supabase
-      .from("rate_limits")
+      .from("helpbot_rate_limits")
       .update({ count: newCount })
       .eq("key", key);
     return { allowed: true, remaining: MAX_REQUESTS - newCount };
   }
 
   // Start a fresh window (upsert).
-  await supabase.from("rate_limits").upsert({
+  await supabase.from("helpbot_rate_limits").upsert({
     key,
     window_start: windowStart.toISOString(),
     count: 1,

@@ -110,7 +110,7 @@ export function validateConversation(messages) {
 /**
  * Run an output through a very basic redaction pass. Any string matching a
  * known secret format is replaced with [REDACTED]. We log redactions to the
- * safety_events table from the caller.
+ * helpbot_safety_events table from the caller.
  */
 export function redactSecrets(output) {
   if (typeof output !== "string") return { value: output, redacted: false };

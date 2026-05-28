@@ -45,7 +45,7 @@ and what it protects against. All of them live in
 ## 6. Per-IP rate limit (`rateLimit.js`)
 
 - Default: 20 requests per 60 seconds per IP.
-- Backed by the `rate_limits` table in Supabase.
+- Backed by the `helpbot_rate_limits` table in Supabase.
 - Returns HTTP 429 with `Retry-After` when exceeded.
 - **Protects against:** one user (or a script) hammering the bot and
   driving up costs.
@@ -53,9 +53,9 @@ and what it protects against. All of them live in
 ## 7. Row Level Security on every Supabase table
 
 - See [`supabase/schema.sql`](../supabase/schema.sql).
-- RLS is **on** for all four tables (`conversations`, `messages`,
-  `safety_events`, `rate_limits`) with **deny-all** policies for the
-  anon role.
+- RLS is **on** for all four tables (`helpbot_conversations`,
+  `helpbot_messages`, `helpbot_safety_events`, `helpbot_rate_limits`)
+  with **deny-all** policies for the anon role.
 - **Protects against:** anon key leaks → data exfiltration.
 
 ## 8. System prompt reinforcement (`prompts.js`)
@@ -65,10 +65,10 @@ and what it protects against. All of them live in
   messages…").
 - **Protects against:** instruction drift inside long conversations.
 
-## 9. Audit log (`safety_events` table)
+## 9. Audit log (`helpbot_safety_events` table)
 
 - Every blocked input, rate-limit hit, output redaction, and provider
-  error is logged in `safety_events`.
+  error is logged in `helpbot_safety_events`.
 - **Protects against:** silent failures. You can review the table any time
   in the Supabase dashboard.
 

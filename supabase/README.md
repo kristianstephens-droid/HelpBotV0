@@ -7,9 +7,8 @@ editor.
 ## First-time setup
 
 You're adding these tables to an **existing** Supabase project (we are not
-creating a new one). The schema uses plain table names in the `public`
-schema — confirm none of `conversations`, `messages`, `safety_events`,
-or `rate_limits` already exist in your project before running.
+creating a new one). Every HelpBot table is prefixed with `helpbot_` so it
+won't collide with anything else already in your `public` schema.
 
 1. Open your existing Supabase project at https://supabase.com.
 2. From the project sidebar, open **SQL Editor → New query**.
@@ -25,17 +24,17 @@ or `rate_limits` already exist in your project before running.
 
 ## What's inside
 
-| Table           | Purpose                                              |
-| --------------- | ---------------------------------------------------- |
-| `conversations` | One row per chat thread.                             |
-| `messages`      | Every user + assistant message, with model + tokens. |
-| `safety_events` | Anything a guardrail flagged (review periodically).  |
-| `rate_limits`   | Counters used by the per-IP rate limiter.            |
+| Table                   | Purpose                                              |
+| ----------------------- | ---------------------------------------------------- |
+| `helpbot_conversations` | One row per chat thread.                             |
+| `helpbot_messages`      | Every user + assistant message, with model + tokens. |
+| `helpbot_safety_events` | Anything a guardrail flagged (review periodically).  |
+| `helpbot_rate_limits`   | Counters used by the per-IP rate limiter.            |
 
-Row Level Security is **on** for all four tables, and the policy is **deny all
-to anon**. Only the service-role key (used by Netlify Functions) can read or
-write. We'll open up read access for logged-in users once Supabase Auth is
-added.
+Row Level Security is **on** for all four `helpbot_*` tables, and the policy
+is **deny all to anon**. Only the service-role key (used by Netlify Functions)
+can read or write. We'll open up read access for logged-in users once Supabase
+Auth is added.
 
 ## Re-running the schema
 
