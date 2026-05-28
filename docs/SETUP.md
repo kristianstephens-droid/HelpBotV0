@@ -41,13 +41,23 @@ $ npm install
 This downloads everything listed in `package.json` into `node_modules/`
 (which is gitignored).
 
-## 4. Make a Supabase project
+## 4. Add HelpBot tables to your existing Supabase project
 
-1. Go to https://supabase.com and create a free project. Pick a region near you.
-2. In the project sidebar: **SQL Editor → New query**.
+You already have a Supabase project — we'll add HelpBot's tables to it
+rather than creating a new one. The schema is namespaced under `public.`
+with explicit table names (`conversations`, `messages`, `safety_events`,
+`rate_limits`) so it won't collide with anything you've already built,
+unless you happen to have tables with those exact names.
+
+> Before running the SQL: skim [`supabase/schema.sql`](../supabase/schema.sql)
+> and confirm none of those four table names are already in use in your
+> project. If any clash, tell the owner before running — we'll rename.
+
+1. Open your existing project at https://supabase.com.
+2. In the sidebar: **SQL Editor → New query**.
 3. Open [`supabase/schema.sql`](../supabase/schema.sql) from this repo,
    copy the whole file, paste, click **Run**. You should see four new
-   tables in **Table Editor**.
+   tables in **Table Editor** alongside whatever you already had.
 4. Go to **Project Settings → API** and copy down:
    - **Project URL**
    - **anon public** key

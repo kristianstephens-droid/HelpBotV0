@@ -6,7 +6,12 @@ editor.
 
 ## First-time setup
 
-1. Create a free Supabase project at https://supabase.com.
+You're adding these tables to an **existing** Supabase project (we are not
+creating a new one). The schema uses plain table names in the `public`
+schema — confirm none of `conversations`, `messages`, `safety_events`,
+or `rate_limits` already exist in your project before running.
+
+1. Open your existing Supabase project at https://supabase.com.
 2. From the project sidebar, open **SQL Editor → New query**.
 3. Open [`schema.sql`](./schema.sql), copy the entire file, paste it into the
    editor, and click **Run**.

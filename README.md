@@ -95,7 +95,8 @@ The function:
 
 1. Open [`netlify/functions/_shared/prompts.js`](./netlify/functions/_shared/prompts.js)
    and paste your real Claude prompt over the placeholder.
-2. Set up the Supabase project per [`docs/SETUP.md`](./docs/SETUP.md).
+2. Add HelpBot's tables to your existing Supabase project per
+   [`docs/SETUP.md`](./docs/SETUP.md).
 3. Connect the repo to Netlify (auto-publish OFF) and add env vars.
 4. Add Supabase Auth → enable per-user RLS read policies.
 5. Add streaming responses when you're ready for a UX upgrade.
