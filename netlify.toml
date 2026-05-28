@@ -1,0 +1,38 @@
+# =============================================================================
+# Netlify configuration for HelpBotV0
+# =============================================================================
+# IMPORTANT: This file does NOT contain any secrets. Secrets live ONLY in:
+#   - local .env (gitignored)
+#   - Netlify dashboard -> Site settings -> Environment variables
+# =============================================================================
+
+[build]
+  publish  = "dist"
+  command  = "npm run build"
+
+[functions]
+  directory = "netlify/functions"
+  # Bundler that supports modern ESM + the Anthropic / OpenAI SDKs.
+  node_bundler = "esbuild"
+
+# Pretty path: the browser calls /api/chat instead of /.netlify/functions/chat
+[[redirects]]
+  from   = "/api/*"
+  to     = "/.netlify/functions/:splat"
+  status = 200
+
+# -----------------------------------------------------------------------------
+# Ship-gate: Auto-publish is intentionally NOT enabled here.
+# In the Netlify UI, set "Stop auto publishing" for the production branch so
+# pushes to `main` produce a Deploy Preview only; a human must click
+# "Publish deploy" to make changes live. See docs/SHIPPING.md.
+# -----------------------------------------------------------------------------
+
+[context.production]
+  # Production env vars come from the Netlify dashboard, not this file.
+
+[context.deploy-preview]
+  # Safe defaults for previews. No prod secrets here.
+
+[context.branch-deploy]
+  # Any branch (e.g. `dev`) builds a preview URL, never production.
