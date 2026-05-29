@@ -324,6 +324,15 @@ body {
   margin: 10px 0;
 }
 
+.markdown img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 .markdown table {
   border-collapse: collapse;
   margin: 6px 0 8px;

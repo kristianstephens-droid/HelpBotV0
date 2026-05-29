@@ -34,6 +34,15 @@ export default function Markdown({ children, className }) {
           a: ({ node, ...props }) => (
             <a {...props} target="_blank" rel="noreferrer" />
           ),
+          img: ({ node, ...props }) => (
+            <img
+              {...props}
+              loading="lazy"
+              decoding="async"
+              referrerPolicy="no-referrer"
+              className="markdown-img"
+            />
+          ),
         }}
       >
         {children}
