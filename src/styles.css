@@ -186,8 +186,13 @@ body {
   max-width: 80%;
   padding: 10px 14px;
   border-radius: 14px;
-  white-space: pre-wrap;
   word-wrap: break-word;
+  /*
+   * Note: no `white-space: pre-wrap` here. The bubble body is now rendered
+   * through <Markdown>, which produces real block elements (<p>, <ul>, etc.).
+   * pre-wrap would double-up the spacing from blank lines between blocks.
+   * `.markdown :where(...)` rules below handle spacing per element.
+   */
 }
 
 .bubble.user {
@@ -211,4 +216,144 @@ body {
   letter-spacing: 0.08em;
   opacity: 0.7;
   margin-bottom: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+ * Markdown rendering (used by <Markdown> — chat bubbles today, anywhere we
+ * print model-authored or user-authored prose in the future).
+ *
+ * Scoped to `.markdown` so it can never bleed into the wizard's Tailwind
+ * styled buttons / headings.
+ * ------------------------------------------------------------------------ */
+
+.markdown {
+  /* Wrap the inline runs naturally; no pre-wrap (block elements handle
+   * vertical rhythm). Single newlines inside a paragraph collapse to spaces
+   * the same way they would in a browser — fine for chat messages. */
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+.markdown > *:first-child {
+  margin-top: 0;
+}
+.markdown > *:last-child {
+  margin-bottom: 0;
+}
+
+.markdown p {
+  margin: 0 0 8px;
+}
+
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+  margin: 12px 0 6px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.markdown h1 { font-size: 1.25em; }
+.markdown h2 { font-size: 1.15em; }
+.markdown h3 { font-size: 1.05em; }
+.markdown h4,
+.markdown h5,
+.markdown h6 { font-size: 1em; }
+
+.markdown ul,
+.markdown ol {
+  margin: 4px 0 8px;
+  padding-left: 1.4em;
+}
+.markdown li {
+  margin: 2px 0;
+}
+.markdown li > p {
+  margin: 0 0 4px;
+}
+
+.markdown a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.markdown strong {
+  font-weight: 700;
+}
+.markdown em {
+  font-style: italic;
+}
+
+.markdown code {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1px 5px;
+  border-radius: 5px;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.92em;
+}
+
+.markdown pre {
+  background: rgba(0, 0, 0, 0.35);
+  padding: 10px 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 6px 0 8px;
+}
+.markdown pre code {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  font-size: 0.9em;
+  line-height: 1.45;
+}
+
+.markdown blockquote {
+  margin: 6px 0 8px;
+  padding: 4px 12px;
+  border-left: 3px solid rgba(255, 255, 255, 0.2);
+  color: var(--muted);
+}
+
+.markdown hr {
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  margin: 10px 0;
+}
+
+.markdown table {
+  border-collapse: collapse;
+  margin: 6px 0 8px;
+  width: 100%;
+  font-size: 0.95em;
+}
+.markdown th,
+.markdown td {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 6px 8px;
+  text-align: left;
+}
+.markdown th {
+  background: rgba(255, 255, 255, 0.06);
+  font-weight: 700;
+}
+
+/* User bubble overrides — solid blue background, so code/blockquote
+ * accents need a lighter ground than the assistant bubble. */
+.bubble.user .markdown code {
+  background: rgba(255, 255, 255, 0.18);
+}
+.bubble.user .markdown pre {
+  background: rgba(0, 0, 0, 0.25);
+}
+.bubble.user .markdown a {
+  color: #ffffff;
+  text-decoration: underline;
+}
+.bubble.user .markdown blockquote {
+  color: rgba(255, 255, 255, 0.85);
+  border-left-color: rgba(255, 255, 255, 0.35);
 }
