@@ -1,0 +1,127 @@
+{
+  "no_audio": {
+    "label": "No Audio",
+    "sop": "Audio Troubleshooting (Steps 1-4)",
+    "image_count": 8,
+    "images": [
+      {
+        "bot_step": "Check Mac system volume (Control Center)",
+        "image": "audio__step1__01-system-volume.png",
+        "shows": "Control Center with the Sound volume slider",
+        "suggested_path": "/images/flex-guide/audio__step1__01-system-volume.png"
+      },
+      {
+        "bot_step": "Open Apple menu -> System Settings",
+        "image": "audio__step2__01-open-system-settings.png",
+        "shows": "Apple menu with System Settings highlighted",
+        "suggested_path": "/images/flex-guide/audio__step2__01-open-system-settings.png"
+      },
+      {
+        "bot_step": "Output tab: select your USB headset",
+        "image": "audio__step2__02-output-tab-usb-headset.png",
+        "shows": "Sound > Output tab showing the USB headset selected",
+        "suggested_path": "/images/flex-guide/audio__step2__02-output-tab-usb-headset.png"
+      },
+      {
+        "bot_step": "Input tab: select mic, input volume up",
+        "image": "audio__step2__03-input-tab-mic.png",
+        "shows": "Sound > Input tab showing the mic selected",
+        "suggested_path": "/images/flex-guide/audio__step2__03-input-tab-mic.png"
+      },
+      {
+        "bot_step": "Open Apple menu -> System Settings",
+        "image": "audio__step3__01-open-system-settings.png",
+        "shows": "Apple menu with System Settings highlighted",
+        "suggested_path": "/images/flex-guide/audio__step3__01-open-system-settings.png"
+      },
+      {
+        "bot_step": "Go to Privacy & Security",
+        "image": "audio__step3__02-privacy-and-security.png",
+        "shows": "System Settings > Privacy & Security list (Microphone row)",
+        "suggested_path": "/images/flex-guide/audio__step3__02-privacy-and-security.png"
+      },
+      {
+        "bot_step": "Microphone: Chrome toggle must be on",
+        "image": "audio__step3__03-microphone-chrome-toggle-on.png",
+        "shows": "Microphone privacy panel with the Chrome toggle on",
+        "suggested_path": "/images/flex-guide/audio__step3__03-microphone-chrome-toggle-on.png"
+      },
+      {
+        "bot_step": "Chrome address-bar permissions: Mic = Allow",
+        "image": "audio__step4__01-chrome-site-mic-allow.png",
+        "shows": "Chrome site-permissions popup for Flex with Microphone allowed",
+        "suggested_path": "/images/flex-guide/audio__step4__01-chrome-site-mic-allow.png"
+      }
+    ]
+  },
+  "quotes_greyed_out": {
+    "label": "Quotes are Greyed Out",
+    "sop": "Send Quote Greyed Out",
+    "image_count": 6,
+    "images": [
+      {
+        "bot_step": "Symptom: Send Quote button is greyed out",
+        "image": "quotes-greyed__01-send-quote-greyed-symptom.png",
+        "shows": "LM panel with the Send Quote button greyed out",
+        "suggested_path": "/images/flex-guide/quotes-greyed__01-send-quote-greyed-symptom.png"
+      },
+      {
+        "bot_step": "Open the Lead Information tab",
+        "image": "quotes-greyed__02-open-lead-information.png",
+        "shows": "LM panel with the Lead Information tab highlighted",
+        "suggested_path": "/images/flex-guide/quotes-greyed__02-open-lead-information.png"
+      },
+      {
+        "bot_step": "Scroll to Additional Information, check Status",
+        "image": "quotes-greyed__03-additional-info-status.png",
+        "shows": "Additional Information section showing the Status field",
+        "suggested_path": "/images/flex-guide/quotes-greyed__03-additional-info-status.png"
+      },
+      {
+        "bot_step": "Open the Status dropdown",
+        "image": "quotes-greyed__04-status-dropdown-open.png",
+        "shows": "Status dropdown open showing Active and Declined reasons",
+        "suggested_path": "/images/flex-guide/quotes-greyed__04-status-dropdown-open.png"
+      },
+      {
+        "bot_step": "Set status to Active",
+        "image": "quotes-greyed__05-status-set-active.png",
+        "shows": "Additional Information with Status set to Active",
+        "suggested_path": "/images/flex-guide/quotes-greyed__05-status-set-active.png"
+      },
+      {
+        "bot_step": "Send Quote re-enabled (or hit Refresh)",
+        "image": "quotes-greyed__06-send-quote-reenabled-refresh.png",
+        "shows": "LM panel with Send Quote enabled and the Refresh button",
+        "suggested_path": "/images/flex-guide/quotes-greyed__06-send-quote-reenabled-refresh.png"
+      }
+    ]
+  },
+  "call_dropped": {
+    "label": "Call Dropped",
+    "sop": "Refresh Data Safely",
+    "image_count": 2,
+    "images": [
+      {
+        "bot_step": "Do NOT use the browser reload (drops the call)",
+        "image": "refresh-data__01-WRONG-browser-reload-drops-call.png",
+        "shows": "Flex Contacts page with the browser reload button highlighted",
+        "suggested_path": "/images/flex-guide/refresh-data__01-WRONG-browser-reload-drops-call.png"
+      },
+      {
+        "bot_step": "Use the Refresh Data button in the LM panel",
+        "image": "refresh-data__02-lm-panel-refresh-data-button.png",
+        "shows": "Lead Management panel with the Refresh Data button highlighted",
+        "suggested_path": "/images/flex-guide/refresh-data__02-lm-panel-refresh-data-button.png"
+      }
+    ],
+    "note": "Best available image set: the refresh-data SOP shows the #1 drop cause (browser reload) and the safe way to refresh. Network-caused drops are diagnosed via the JSON report flow, which has no per-step images."
+  },
+  "other": {
+    "label": "Not Sure / Other",
+    "sop": null,
+    "image_count": 0,
+    "images": [],
+    "note": "No screenshots \u2014 bot should triage with a diagnostic question first, then route."
+  }
+}
