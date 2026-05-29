@@ -94,7 +94,17 @@ body {
   flex-direction: column;
   flex: 1;
   border: 1px solid rgba(255, 255, 255, 0.05);
+  /*
+   * Fixed viewport: the panel never grows with the conversation.
+   * `.chat-messages` inside is overflow-y: auto, so scroll lives there.
+   * 70vh fills the working area on a typical 13"-15" laptop without
+   * pushing the input box below the fold (Wizard header + back row +
+   * padding ~ 120-160px above). Floor + ceiling keep it usable on
+   * short displays and stop it dominating ultrawide monitors.
+   */
+  height: 70vh;
   min-height: 480px;
+  max-height: 820px;
 }
 
 .chat-messages {
@@ -187,6 +197,11 @@ body {
   padding: 10px 14px;
   border-radius: 14px;
   word-wrap: break-word;
+  /*
+   * Small breathing room above when this bubble is the scrollIntoView
+   * target (block: "start") so it doesn't kiss the top of the panel.
+   */
+  scroll-margin-top: 8px;
   /*
    * Note: no `white-space: pre-wrap` here. The bubble body is now rendered
    * through <Markdown>, which produces real block elements (<p>, <ul>, etc.).

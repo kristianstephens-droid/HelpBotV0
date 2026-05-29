@@ -31,14 +31,28 @@ export default function Chat({
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(null);
   const [conversationId, setConversationId] = useState(null);
-  const scrollRef = useRef(null);
+  const lastBubbleRef = useRef(null);
+  const prevCountRef = useRef(0);
   const autoSentRef = useRef(false);
 
+  // When a new message arrives, snap the panel so the START of that
+  // message sits at the top of the viewport (older messages scroll up
+  // and remain reachable by scrolling inside the panel). We gate on
+  // messages.length growing so re-renders for unrelated reasons (e.g.
+  // `sending` toggling) don't cause spurious scrolls.
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (
+      messages.length > prevCountRef.current &&
+      lastBubbleRef.current &&
+      typeof lastBubbleRef.current.scrollIntoView === "function"
+    ) {
+      lastBubbleRef.current.scrollIntoView({
+        block: "start",
+        behavior: "smooth",
+      });
     }
-  }, [messages]);
+    prevCountRef.current = messages.length;
+  }, [messages.length]);
 
   async function send(content, displayOverride) {
     const trimmed = content.trim();
@@ -120,7 +134,7 @@ export default function Chat({
         </div>
       )}
 
-      <div className="chat-messages" ref={scrollRef}>
+      <div className="chat-messages">
         {messages.length === 0 && !sending ? (
           <div className="chat-empty">
             Say hi to start the conversation.
@@ -129,6 +143,7 @@ export default function Chat({
           messages.map((m, i) => (
             <MessageBubble
               key={i}
+              ref={i === messages.length - 1 ? lastBubbleRef : null}
               role={m.role}
               content={m.displayContent ?? m.content}
             />
