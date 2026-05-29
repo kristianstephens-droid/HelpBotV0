@@ -40,18 +40,40 @@ export default function Chat({
   // and remain reachable by scrolling inside the panel). We gate on
   // messages.length growing so re-renders for unrelated reasons (e.g.
   // `sending` toggling) don't cause spurious scrolls.
+  //
+  // We also keep the latest bubble pinned to the top via a ResizeObserver
+  // while it's the latest message: when its <img> screenshots finish
+  // loading the bubble can grow ~400px, which would push the image
+  // bottom past the panel viewport. Re-anchoring on every size change
+  // keeps the new content fully visible without manual scrolling.
   useEffect(() => {
-    if (
-      messages.length > prevCountRef.current &&
-      lastBubbleRef.current &&
-      typeof lastBubbleRef.current.scrollIntoView === "function"
-    ) {
-      lastBubbleRef.current.scrollIntoView({
-        block: "start",
-        behavior: "smooth",
-      });
+    if (messages.length <= prevCountRef.current) {
+      prevCountRef.current = messages.length;
+      return;
     }
     prevCountRef.current = messages.length;
+
+    const bubble = lastBubbleRef.current;
+    if (!bubble || typeof bubble.scrollIntoView !== "function") return;
+
+    // Initial anchor: smooth so the rep visually tracks the panel moving.
+    bubble.scrollIntoView({ block: "start", behavior: "smooth" });
+
+    // Re-anchor on every later size change (image loads, late layout).
+    // Use "instant" so we don't jitter the panel while the rep is reading.
+    if (typeof ResizeObserver === "undefined") return;
+    let isFirstCallback = true;
+    const ro = new ResizeObserver(() => {
+      if (isFirstCallback) {
+        // The browser fires once immediately on observe with the current
+        // size; ignore it so we don't fight the smooth initial scroll.
+        isFirstCallback = false;
+        return;
+      }
+      bubble.scrollIntoView({ block: "start", behavior: "instant" });
+    });
+    ro.observe(bubble);
+    return () => ro.disconnect();
   }, [messages.length]);
 
   async function send(content, displayOverride) {
