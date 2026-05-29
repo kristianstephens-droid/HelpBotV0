@@ -249,11 +249,26 @@ function deriveChatHandoff(state) {
   };
 
   // The first user message that auto-sends.
+  //
+  // Always an object so <Chat /> has a single invariant:
+  //   - `display` is what the bubble shows the rep.
+  //   - `send`    is what gets POSTed to /api/chat and stored in the
+  //               conversation history. Claude sees this.
+  //
+  // For the freeText path the rep wrote it themselves, so display === send.
+  // For the common-issue path we keep the short, natural-sounding line in
+  // the bubble but append a one-step-at-a-time directive to `send` so the
+  // first reply is shaped correctly without making the rep read their own
+  // bot-prompting language back at themselves.
   let initialMessage = null;
   if (state.freeText) {
-    initialMessage = state.freeText;
+    initialMessage = { display: state.freeText, send: state.freeText };
   } else if (issueLabel && toolLabel) {
-    initialMessage = `I'm having an issue with ${toolLabel}: ${issueLabel}. Walk me through it ONE step at a time — give me Step 1 only, then wait for my reply before sending Step 2.`;
+    const shortLine = `I'm having an issue with ${toolLabel}: ${issueLabel}.`;
+    initialMessage = {
+      display: shortLine,
+      send: `${shortLine} Walk me through it ONE step at a time — give me Step 1 only, then wait for my reply before sending Step 2.`,
+    };
   }
 
   // Small badge above the chat so the rep knows what the bot already knows.

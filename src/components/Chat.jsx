@@ -9,9 +9,14 @@ import MessageBubble from "./MessageBubble.jsx";
  *       Sent to /api/chat with every request. The backend appends this as
  *       a small intake block on the system prompt so Claude knows the
  *       rep's team / tool / issue without re-asking.
- *   - initialUserMessage: string
+ *   - initialUserMessage: string | { display: string, send: string }
  *       If present and the chat is empty, this message is auto-sent as
  *       the first user turn so Claude opens the conversation in context.
+ *       When given as an object, `display` is what shows in the bubble
+ *       and `send` is what gets POSTed to /api/chat. This lets the wizard
+ *       attach a one-step-at-a-time directive for Claude without making
+ *       the rep read their own bot-prompting language back at themselves.
+ *       Plain string callers (and user-typed turns) keep working unchanged.
  *   - contextStripLabel: string
  *       A short, human-readable badge to display above the chat showing
  *       what the bot already knows (e.g. "New Sales \u00b7 Twilio Flex \u00b7 No Audio").
@@ -35,12 +40,16 @@ export default function Chat({
     }
   }, [messages]);
 
-  async function send(content) {
+  async function send(content, displayOverride) {
     const trimmed = content.trim();
     if (!trimmed || sending) return;
+    const display = (displayOverride ?? content).trim();
 
     setError(null);
     const userMessage = { role: "user", content: trimmed };
+    // Only attach displayContent when it actually differs from what we're
+    // posting. Keeps user-typed turns as plain { role, content } objects.
+    if (display && display !== trimmed) userMessage.displayContent = display;
     const nextMessages = [...messages, userMessage];
     setMessages(nextMessages);
     setSending(true);
@@ -50,7 +59,9 @@ export default function Chat({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: nextMessages,
+          // Strip any UI-only fields (e.g. displayContent) before sending.
+          // The wire shape is strictly { role, content }.
+          messages: nextMessages.map(({ role, content }) => ({ role, content })),
           conversationId,
           context: wizardContext ?? undefined,
         }),
@@ -80,7 +91,14 @@ export default function Chat({
     if (!initialUserMessage) return;
     if (messages.length > 0) return;
     autoSentRef.current = true;
-    send(initialUserMessage);
+    // Accept either a plain string (legacy / standalone callers) or
+    // { display, send } from the wizard. When given an object, the bubble
+    // renders `display` and the API receives `send`.
+    const isObj =
+      typeof initialUserMessage === "object" && initialUserMessage !== null;
+    const sendStr = isObj ? initialUserMessage.send : initialUserMessage;
+    const displayStr = isObj ? initialUserMessage.display : initialUserMessage;
+    send(sendStr, displayStr);
     // We intentionally do not depend on `send`; it's stable for this purpose.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialUserMessage]);
@@ -109,7 +127,11 @@ export default function Chat({
           </div>
         ) : (
           messages.map((m, i) => (
-            <MessageBubble key={i} role={m.role} content={m.content} />
+            <MessageBubble
+              key={i}
+              role={m.role}
+              content={m.displayContent ?? m.content}
+            />
           ))
         )}
         {sending && messages[messages.length - 1]?.role === "user" && (
